@@ -1,0 +1,178 @@
+/**
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {
+  fileOpen,
+  directoryOpen,
+  fileSave,
+  supported
+} from 'https://unpkg.com/browser-fs-access';
+
+
+
+// copio-y-pego desde image-to-blob.mjs, a ver si funciona
+const imageToBlob = async (img) => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    canvas.toBlob((blob) => {
+      resolve(blob);
+    });
+  });
+};
+
+
+(async () => {
+  const openButton = document.querySelector('#open');
+  const openMultipleButton = document.querySelector('#open-multiple');
+  const openImageOrTextButton = document.querySelector('#open-image-or-text');
+  const openDirectoryButton = document.querySelector('#open-directory');
+  const saveButton = document.querySelector('#save');
+  const supportedParagraph = document.querySelector('.supported');
+  const pre = document.querySelector('pre');
+
+  if (supported) {
+    supportedParagraph.textContent = 'Using the File System Access API.';
+  } else {
+    supportedParagraph.textContent = 'Using the fallback implementation.';
+  }
+
+  const appendImage = (blob) => {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(blob);
+    document.body.append(img);
+    img.onload = img.onerror = () => URL.revokeObjectURL(img.src);
+  };
+
+  const listDirectory = (blobs) => {
+    let fileStructure = '';
+    blobs
+      .sort((a, b) => a.webkitRelativePath.localeCompare(b))
+      .forEach((blob) => {
+        // The File System Access API currently reports the `webkitRelativePath`
+        // as empty string `''`.
+        fileStructure += `${blob.webkitRelativePath}\n`;
+      });
+    pre.textContent += fileStructure;
+
+    blobs
+      .filter((blob) => {
+        return blob.type.startsWith('image/');
+      })
+      .forEach((blob) => {
+        appendImage(blob);
+      });
+  };
+
+  openButton.addEventListener('click', async () => {
+    try {
+      const blob = await fileOpen({
+        mimeTypes: ['image/jpg', 'image/png', 'image/gif', 'image/webp'],
+        extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
+      });
+      appendImage(blob);
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        return console.error(err);
+      }
+      console.log('The user aborted a request.');
+    }
+  });
+
+  openMultipleButton.addEventListener('click', async () => {
+    try {
+      const blobs = await fileOpen({
+        mimeTypes: ['image/jpg', 'image/png', 'image/gif', 'image/webp'],
+        extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
+        multiple: true,
+      });
+      for (const blob of blobs) {
+        appendImage(blob);
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        return console.error(err);
+      }
+      console.log('The user aborted a request.');
+    }
+  });
+
+  openImageOrTextButton.addEventListener('click', async () => {
+    try {
+      const blobs = await fileOpen([
+        {
+          description: 'Image files',
+          mimeTypes: ['image/jpg', 'image/png', 'image/gif', 'image/webp'],
+          extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
+          multiple: true,
+        },
+        {
+          description: 'Text files',
+          mimeTypes: ['text/*'],
+          extensions: ['.txt'],
+        },
+      ]);
+      for (const blob of blobs) {
+        if (blob.type.startsWith('image/')) {
+          appendImage(blob);
+        } else {
+          document.body.append(await blob.text());
+        }
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        return console.error(err);
+      }
+      console.log('The user aborted a request.');
+    }
+  });
+
+  openDirectoryButton.addEventListener('click', async () => {
+    try {
+      const blobs = await directoryOpen();
+      listDirectory(blobs);
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        return console.error(err);
+      }
+      console.log('The user aborted a request.');
+    }
+  });
+
+  saveButton.addEventListener('click', async () => {
+    const blob = new Blob(["<html><p>Hola mundo blob </p></html>"], {type: 'text/html'});  // await imageToBlob(document.querySelector('img'));
+    try {
+      await fileSave(blob, {
+        fileName: 'helloW.html',
+        extensions: ['.html'],
+      });
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        return console.error(err);
+      }
+      console.log('The user aborted a request.');
+    }
+  });
+
+  openButton.disabled = false;
+  openMultipleButton.disabled = false;
+  openImageOrTextButton.disabled = false;
+  openDirectoryButton.disabled = false;
+  saveButton.disabled = false;
+})();
