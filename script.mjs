@@ -21,93 +21,10 @@ import {
 
 
 (async () => {
-  const openDirectoryButton = document.querySelector('#open-directory');
   const saveButton = document.querySelector('#save');
-  const supportedParagraph = document.querySelector('.supported');
-  const pre = document.querySelector('pre');
+   const pre = document.querySelector('pre');
 
 
-  const listDirectory = (blobs) => {
-    let fileStructure = '';
-    blobs
-      .sort((a, b) => a.webkitRelativePath.localeCompare(b))
-      .forEach((blob) => {
-        // The File System Access API currently reports the `webkitRelativePath`
-        // as empty string `''`.
-        fileStructure += `${blob.webkitRelativePath}\n`;
-      });
-    pre.textContent += fileStructure;
-
-    blobs
-      .filter((blob) => {
-        return blob.type.startsWith('image/');
-      })
-      .forEach((blob) => {
-        appendImage(blob);
-      });
-  };
-
-
-
-  openMultipleButton.addEventListener('click', async () => {
-    try {
-      const blobs = await fileOpen({
-        mimeTypes: ['image/jpg', 'image/png', 'image/gif', 'image/webp'],
-        extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
-        multiple: true,
-      });
-      for (const blob of blobs) {
-        appendImage(blob);
-      }
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        return console.error(err);
-      }
-      console.log('The user aborted a request.');
-    }
-  });
-
-  openImageOrTextButton.addEventListener('click', async () => {
-    try {
-      const blobs = await fileOpen([
-        {
-          description: 'Image files',
-          mimeTypes: ['image/jpg', 'image/png', 'image/gif', 'image/webp'],
-          extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
-          multiple: true,
-        },
-        {
-          description: 'Text files',
-          mimeTypes: ['text/*'],
-          extensions: ['.txt'],
-        },
-      ]);
-      for (const blob of blobs) {
-        if (blob.type.startsWith('image/')) {
-          appendImage(blob);
-        } else {
-          document.body.append(await blob.text());
-        }
-      }
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        return console.error(err);
-      }
-      console.log('The user aborted a request.');
-    }
-  });
-
-  openDirectoryButton.addEventListener('click', async () => {
-    try {
-      const blobs = await directoryOpen();
-      listDirectory(blobs);
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        return console.error(err);
-      }
-      console.log('The user aborted a request.');
-    }
-  });
 
   saveButton.addEventListener('click', async () => {
     const blob = new Blob(["<html><p>Hola Blob </p></html>"], {type: 'text/html'});  // await imageToBlob(document.querySelector('img'));
@@ -125,8 +42,5 @@ import {
   });
 
 
-  openMultipleButton.disabled = false;
-  openImageOrTextButton.disabled = false;
-  openDirectoryButton.disabled = false;
   saveButton.disabled = false;
 })();
