@@ -123,7 +123,7 @@ import {
   });
 
   saveButton.addEventListener('click', async () => {
-    const blob = new Blob(["<html><p>Hola mundo blob </p></html>"], {type: 'text/html'});  // await imageToBlob(document.querySelector('img'));
+    const blob = new Blob(["<html><p>Hola Blob </p></html>"], {type: 'text/html'});  // await imageToBlob(document.querySelector('img'));
     try {
       await fileSave(blob, {
         fileName: 'helloW.html',
