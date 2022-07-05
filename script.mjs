@@ -137,7 +137,7 @@ import {
     }
   });
 
-  openButton.disabled = true;
+  openButton.disabled = false;
   openMultipleButton.disabled = true;
   openImageOrTextButton.disabled = true;
   openDirectoryButton.disabled = false;
