@@ -15,50 +15,17 @@
  */
 
 import {
-  fileOpen,
   directoryOpen,
-  fileSave,
-  supported
+  fileSave
 } from 'https://unpkg.com/browser-fs-access';
 
 
-
-// copio-y-pego desde image-to-blob.mjs, a ver si funciona
-const imageToBlob = async (img) => {
-  return new Promise((resolve) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
-    canvas.toBlob((blob) => {
-      resolve(blob);
-    });
-  });
-};
-
-
 (async () => {
-  const openButton = document.querySelector('#open');
-  const openMultipleButton = document.querySelector('#open-multiple');
-  const openImageOrTextButton = document.querySelector('#open-image-or-text');
   const openDirectoryButton = document.querySelector('#open-directory');
   const saveButton = document.querySelector('#save');
   const supportedParagraph = document.querySelector('.supported');
   const pre = document.querySelector('pre');
 
-  if (supported) {
-    supportedParagraph.textContent = 'Using the File System Access API.';
-  } else {
-    supportedParagraph.textContent = 'Using the fallback implementation.';
-  }
-
-  const appendImage = (blob) => {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(blob);
-    document.body.append(img);
-    img.onload = img.onerror = () => URL.revokeObjectURL(img.src);
-  };
 
   const listDirectory = (blobs) => {
     let fileStructure = '';
@@ -170,9 +137,9 @@ const imageToBlob = async (img) => {
     }
   });
 
-  openButton.disabled = false;
-  openMultipleButton.disabled = false;
-  openImageOrTextButton.disabled = false;
+  openButton.disabled = true;
+  openMultipleButton.disabled = true;
+  openImageOrTextButton.disabled = true;
   openDirectoryButton.disabled = false;
   saveButton.disabled = false;
 })();
