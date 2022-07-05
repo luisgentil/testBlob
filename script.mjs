@@ -47,20 +47,7 @@ import {
       });
   };
 
-  openButton.addEventListener('click', async () => {
-    try {
-      const blob = await fileOpen({
-        mimeTypes: ['image/jpg', 'image/png', 'image/gif', 'image/webp'],
-        extensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
-      });
-      appendImage(blob);
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        return console.error(err);
-      }
-      console.log('The user aborted a request.');
-    }
-  });
+
 
   openMultipleButton.addEventListener('click', async () => {
     try {
@@ -137,9 +124,9 @@ import {
     }
   });
 
-  openButton.disabled = false;
-  openMultipleButton.disabled = true;
-  openImageOrTextButton.disabled = true;
+
+  openMultipleButton.disabled = false;
+  openImageOrTextButton.disabled = false;
   openDirectoryButton.disabled = false;
   saveButton.disabled = false;
 })();
