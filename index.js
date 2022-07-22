@@ -30,7 +30,7 @@ myTimer = function() {
 var num_diapos = 4;
 var indice = 0;
 const saveButton = document.querySelector('#save');
-//var ff = window.setInterval(myTimer, 1000);
+var ff = window.setInterval(myTimer, 1000);
 
 // esto proviene de test.html, y habrá que depurarlo
 
